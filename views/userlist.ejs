@@ -8,7 +8,8 @@
     <h1>User List</h1>
     <ul>
       <% for (i = 0; i < userlist.length; i++) { %>
-            <li><a href="mailto:<%= userlist[i].email %>"><%= userlist[i].username %></a></li>
+            <!-- <li><a href="mailto:<%= userlist[i].email %>"><%= userlist[i].name %></a></li> -->
+            <li><%= userlist[i].name %></li>
       <% }%>
     </ul>
   </body>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Google Recaptcha Log-in</title>
+    <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  </head>
+  <body>
+    <div class="container"><br />
+      <h1>Google Recaptcha Log-in</h1><br />
+      <form id="loginForm" method="POST">
+        <div class="row">
+        <div class="col-md-4"></div>
+        <div class="form-group col-md-4">
+        <div class="g-recaptcha" data-sitekey=<%= siteKey %>></div>
+        </div>
+      </div>
+        <div class="row">
+          <div class="col-md-4"></div>
+          <div class="form-group col-md-4">
+            <label for="name">Name:</label>
+            <input type="text" class="form-control" id="name" name="name">
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="form-group col-md-4">
+              <label for="pwd">Password:</label>
+              <input type="text" class="form-control" id="pwd" name="pwd">
+            </div>
+          </div>
+        <div class="row">
+          <div class="col-md-4"></div>
+          <div class="form-group col-md-4">
+            <button type="submit" class="btn btn-success">Send</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <script>
+      document.getElementById('loginForm').addEventListener('submit', submit_login);
+      function submit_login(e) {
+        e.preventDefault();
+        const captcha = document.querySelector('#g-recaptcha-response').value
+        const name = document.querySelector("#name").value;
+        const pwd = document.querySelector("#pwd").value;
+        if(captcha == null || captcha == '' || captcha == undefined) {
+          alert("Please check the captcha box first.")
+          return
+        }
+        fetch('/users/login', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json, text/plain',
+            'Content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: name,
+            pwd: pwd,
+            captcha: captcha
+          })
+        })// Promise(s)
+        .then((res) => res.json())
+        .then((data) => {
+          if(data['success'] == undefined || data['success'] == '' || data['success'] == null) {
+            alert("Log-in failed. Check if your inputs are correct, also check your device and internet environment.")
+            location.reload()
+          } else if(data['success'] == false){
+            alert(data['msg'])
+            location.reload()
+          } else {
+            alert(data['msg'])
+            location.reload()
+          }
+        })
+      }
+
+    </script>
+  </body>
+</html>
