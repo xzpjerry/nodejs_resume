@@ -38,13 +38,14 @@
         </div>
       </form>
     </div>
+    <script src="/javascripts/bundle_crypto.js"></script>
     <script>
       document.getElementById('signupForm').addEventListener('submit', submit_login);
       function submit_login(e) {
         e.preventDefault();
         const captcha = document.querySelector('#g-recaptcha-response').value
         const name = document.querySelector("#name").value;
-        const pwd = document.querySelector("#pwd").value;
+        const pwd = hashPW(name, document.querySelector("#pwd").value);
         if(captcha == null || captcha == '' || captcha == undefined) {
           alert("Please check the captcha box first.")
           return

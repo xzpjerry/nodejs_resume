@@ -1,16 +1,18 @@
 var express = require('express');
 var router = express.Router();
 var captcha = require('../captcha')
+var pwd_ver = require('../db').pwd_verify;
+var sign_up = require('../db').sign_up;
+var get_user = require('../db').get_users;
 
 router.get('/', function(req, res) {
-  const db = req.db;
-  const db_cfg = req.db_cfg;
-  var collection = db.get(db_cfg.COLLECTION);
-  collection.find({}, {}, function(e, docs) {
+  get_user(req).then(function(docs) {
     res.render('userlist', {
       'userlist': docs
-    });
-  });
+    }); 
+  }).catch(function(e){
+    res.render('404')
+  })
 });
 
 router.get('/login', function(req, res, next) {
@@ -18,16 +20,26 @@ router.get('/login', function(req, res, next) {
 });
 
 router.post('/login', function(req, res) {
-    captcha.authetication(req, function(code) {
-        if(code == 0) {
-            res.json({'success': true, 'msg': "Log-in successfully."})
-        } else if(code == 1){
-            res.json({'success': false, 'msg': "Are you bot?"})
+  captcha.authetication(req).then(function(val){
+    pwd_ver(req).then(function(val){
+        res.json({'success': true, 'msg': "Log-in successfully."})
+      }).catch(function(code) {
+        if(code == 1){
+          res.json({'success': false, 'msg': "Are you bot?"})
         } else if(code == 2) {
-            res.json({'success': false, 'msg': "Unable to connect to Google API."})
+          res.json({'success': false, 'msg': "Unable to connect to Google API."})
         } else if(code == 3) {
-            res.json({'success': false, 'msg': "Wrong user name or password"})
+          res.json({'success': false, 'msg': "Wrong user name or password"})
         }
+      })
+  }).catch(function(code){
+      if(code == 1){
+        res.json({'success': false, 'msg': "Are you bot?"})
+      } else if(code == 2) {
+        res.json({'success': false, 'msg': "Unable to connect to Google API."})
+      } else if(code == 3) {
+        res.json({'success': false, 'msg': "Wrong user name or password"})
+      }
     })
 });
 
@@ -35,25 +47,16 @@ router.get('/newuser', function(req, res) {
   res.render('newuser', { siteKey: captcha.CAPTCHA_CFG["SITEKEY"] })
 })
 
+
 router.post('/adduser', function(req, res) {
-  captcha.authetication(req, function(code) {
-    if(code == 3) {
-      const db = req.db;
-      const db_cfg = req.db_cfg;
-      var collection = db.get(db_cfg.COLLECTION);
-      collection.insert({
-        'name' : req.body.name,
-        'pwd': req.body.pwd
-      }, function(err, doc) {
-        if(err) {
-          res.json({'success': false, 'msg': "There was a problem when adding your info."});
-        } else {
-          res.json({'success': true, 'msg': "Sign up successfully"})
-        }
-      });
-    } else {
-        res.json({'success': false, 'msg': "OOPS, account existed or encountered a connection problem"})
-    }
+  captcha.authetication(req).then(function(val){
+    sign_up(req).then(function(val) {
+      res.json({'success': true, 'msg': "Sign up successfully"})
+    }).catch(function(val){
+      res.json({'success': false, 'msg': "There was a problem when adding your info."});
+    })
+  }).catch(function(code){
+    res.json({'success': false, 'msg': "There was a problem when adding your info."});
   })
 });
 

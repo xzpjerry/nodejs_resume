@@ -21,7 +21,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // make db accessible to our router
-const config = require('./db');
+const config = require('./db').config;
 var monk = require('monk')
 var db = monk(config.DB)
 app.use(function(req, res, next) {
