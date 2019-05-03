@@ -1,9 +1,10 @@
 var express = require('express');
 var router = express.Router();
-var captcha = require('../captcha')
+var captcha = require('../captcha');
 var pwd_ver = require('../db').pwd_verify;
 var sign_up = require('../db').sign_up;
 var get_user = require('../db').get_users;
+var updateLastLoginTime = require('../db').update_Last_LoginTime;
 
 router.get('/', function(req, res) {
   get_user(req).then(function(docs) {
@@ -22,7 +23,13 @@ router.get('/login', function(req, res, next) {
 router.post('/login', function(req, res) {
   captcha.authetication(req).then(function(val){
     pwd_ver(req).then(function(val){
-        res.json({'success': true, 'msg': "Log-in successfully."})
+        req.last = (new Date()).getTime()
+        updateLastLoginTime(req).then(function(val){
+          // res.cookie("nodejsResume", {account: userName, hash: hash}, {maxAge: 60000})
+          res.json({'success': true, 'msg': "Log-in successfully."})
+        }).catch(function(e){
+          res.json({'success': true, 'msg': "Log-in successfully, but unable to Update Your Last Log in Time" + e})
+        })
       }).catch(function(code) {
         if(code == 2) {
           res.json({'success': false, 'msg': "Unable to connect to the Database."})
@@ -43,7 +50,12 @@ router.get('/newuser', function(req, res) {
 router.post('/adduser', function(req, res) {
   captcha.authetication(req).then(function(val){
     sign_up(req).then(function(val) {
-      res.json({'success': true, 'msg': "Sign up successfully"})
+      req.last = (new Date()).getTime()
+      updateLastLoginTime(req).then(function(val){
+        res.json({'success': true, 'msg': "Sign up successfully"})
+      }).catch(function(e){
+        res.json({'success': true, 'msg': "Log-in successfully, but unable to Update Your Last Log in Time"})
+      })
     }).catch(function(val){
       res.json({'success': false, 'msg': "There was a problem when adding your info."});
     })

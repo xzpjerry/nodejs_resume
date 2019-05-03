@@ -5,6 +5,9 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
+    <% if (this.msg) { %>
+    <p><%= msg %></p>
+    <% }%>
     <h1>User List</h1>
     <ul>
       <% for (i = 0; i < userlist.length; i++) { %>

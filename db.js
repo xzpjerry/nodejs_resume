@@ -11,6 +11,26 @@ module.exports.config = {
     COLLECTION: 'blog_users'
 }
 
+module.exports.get_Last_LoginTime = function(req) {
+
+}
+module.exports.update_Last_LoginTime = function(req) {
+    return new Promise(function(resolve, reject){
+        const db = req.db;
+        const db_cfg = req.db_cfg;
+        var collection = db.get(db_cfg.COLLECTION);
+        const myquery = { name: req.body.name }
+        const newvalues = { $set: {last: req.last, expire: req.last + 604800000} }
+        collection.findOneAndUpdate(myquery, newvalues, function(e) {
+            if(e) {
+                reject(e)
+            } else {
+                resolve("OK")
+            }
+        });
+    })
+}
+
 module.exports.get_users = function(req) {
     return new Promise(function(resolve, reject){
         const db = req.db;
@@ -55,10 +75,10 @@ module.exports.pwd_verify = function(req) {
             if(e) {
                 reject(2)
             }
-            if(doc == undefined || doc == '' || doc == null) {
+            else if(doc == undefined || doc == '' || doc == null) {
                 reject(3)
             }
-            if(doc['pwd'] !== pwd) {
+            else if(doc['pwd'] == undefined || doc['pwd'] !== pwd) {
                 reject(3)
             }
             resolve(0)
