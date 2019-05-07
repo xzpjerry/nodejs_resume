@@ -14,19 +14,19 @@ module.exports.CAPTCHA_CFG = CAPTCHA_CFG
 module.exports.authetication = function authetication(req, debug=false) {
     return new Promise(function(resolve, reject){
         if(!debug && (req.body['captcha'] === undefined || req.body['captcha'] === '' || req.body['captcha'] === null)){
-            reject(1)
+            reject({'success': false, 'msg': "Haven't done the captcha."})
         }
         else {
             const verificationURL = COMBO + "&response=" + req.body['captcha'] + "&remoteip=" + req.connection.remoteAddress;
             request(verificationURL,function(error,response,body) {
                 if(error) {
-                    reject(2)
+                    reject({'success': false, 'msg': "The server is unable to connect to Google's captcha."})
                 } else {
                     body = JSON.parse(body);
                     if((body.success == undefined || !body.success) && !debug) {
-                        reject(1)
+                        reject({'success': false, 'msg': "Verfication of captcha failed."})
                     }
-                    resolve(0)
+                    resolve({'success': true, 'msg': "Captcha test is passed"})
                 }
             })
         }

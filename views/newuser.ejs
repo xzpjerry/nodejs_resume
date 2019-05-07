@@ -50,7 +50,7 @@
           alert("Please check the captcha box first.")
           return
         }
-        fetch('/users/adduser', {
+        fetch('/users/signup', {
           method: 'POST',
           headers: {
             'Accept': 'application/json, text/plain',
@@ -65,14 +65,15 @@
         .then((res) => res.json())
         .then((data) => {
           if(data['success'] == undefined || data['success'] == '' || data['success'] == null) {
-            alert("Log-in failed. Check if your inputs are correct, also check your device and internet environment.")
-            location.reload()
+            if(data['msg']) {
+              alert(data['msg'])
+            }
           } else if(data['success'] == false){
-            alert(data['msg'])
-            location.reload()
+            if(data['msg']) {
+              alert(data['msg'])
+            }
           } else {
-            alert(data['msg'])
-            location.reload()
+            document.location.href = '/users'
           }
         })
       }

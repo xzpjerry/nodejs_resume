@@ -1,66 +1,93 @@
 var express = require('express');
 var router = express.Router();
 var captcha = require('../captcha');
-var pwd_ver = require('../db').pwd_verify;
-var sign_up = require('../db').sign_up;
-var get_user = require('../db').get_users;
-var updateLastLoginTime = require('../db').update_Last_LoginTime;
+var db_util = require('../db');
 
 router.get('/', function(req, res) {
-  get_user(req).then(function(docs) {
+  db_util.get_users(req).then(function(rslt) {
     res.render('userlist', {
-      'userlist': docs
+      'userlist': rslt['return']
     }); 
   }).catch(function(e){
     res.render('404')
   })
 });
 
+router.get('/logout', function(req, res, next){
+  res.clearCookie("nodejs_resume");
+  res.redirect('/users/login');
+});
+
 router.get('/login', function(req, res, next) {
+  db_util.isLogined(req)
+  .then(function(rslt) {
+    // console.log(rslt)
+    res.redirect('/users')
+  })
+  .catch(function(e) {
+    console.log(e)
     res.render('login', { siteKey: captcha.CAPTCHA_CFG["SITEKEY"] });
+  })
+  
 });
 
 router.post('/login', function(req, res) {
-  captcha.authetication(req).then(function(val){
-    pwd_ver(req).then(function(val){
-        req.last = (new Date()).getTime()
-        updateLastLoginTime(req).then(function(val){
-          // res.cookie("nodejsResume", {account: userName, hash: hash}, {maxAge: 60000})
-          res.json({'success': true, 'msg': "Log-in successfully."})
-        }).catch(function(e){
-          res.json({'success': true, 'msg': "Log-in successfully, but unable to Update Your Last Log in Time" + e})
-        })
-      }).catch(function(code) {
-        if(code == 2) {
-          res.json({'success': false, 'msg': "Unable to connect to the Database."})
-        } else if(code == 3) {
-          res.json({'success': false, 'msg': "Wrong user name or password"})
-        }
+  captcha.authetication(req)
+  .then(function(captcha_passed) {
+    db_util.pwd_verify(req)
+    .then(function(pwd_passed){
+      db_util.update_Last_LoginTime(req)
+      .then(function(updated_result) {
+        res.cookie("nodejs_resume", {name: updated_result['username'], hash: updated_result['t_hash'], expire: updated_result['expire']}, {maxAge: 86400000})
+        // res.redirect('/users')
+        res.json(pwd_passed)
       })
-  }).catch(function(code){
-      res.json({'success': false, 'msg': "Unable to pass the Recaptcha"});
+      .catch(function(erro_msg) {
+        res.json(erro_msg)
+      })
     })
+    .catch(function(erro_msg) {
+      res.json(erro_msg)
+    })
+  })
+  .catch(function(erro_msg) {
+    res.json(erro_msg)
+  })
+  
 });
 
-router.get('/newuser', function(req, res) {
+router.get('/signup', function(req, res) {
     res.render('newuser', { siteKey: captcha.CAPTCHA_CFG["SITEKEY"] })
 })
 
 
-router.post('/adduser', function(req, res) {
-  captcha.authetication(req).then(function(val){
-    sign_up(req).then(function(val) {
-      req.last = (new Date()).getTime()
-      updateLastLoginTime(req).then(function(val){
-        res.json({'success': true, 'msg': "Sign up successfully"})
-      }).catch(function(e){
-        res.json({'success': true, 'msg': "Log-in successfully, but unable to Update Your Last Log in Time"})
+router.post('/signup', function(req, res) {
+  captcha.authetication(req)
+  .then(function(captcha_passed) {
+    db_util.doesn_has_user_name(req)
+    .then(function(istrue) {
+      db_util.sign_up(req)
+      .then(function(successfully) {
+        db_util.update_Last_LoginTime(req)
+        .then(function(updated_result) {
+          res.cookie("nodejs_resume", {name: updated_result['username'], hash: updated_result['t_hash'], expire: updated_result['expire']}, {maxAge: 86400000})
+          // res.redirect('/users')
+          res.json(successfully)
+        })
+        .catch(function(erro_msg) {
+          res.json(erro_msg)
+        })
       })
-    }).catch(function(val){
-      res.json({'success': false, 'msg': "There was a problem when adding your info."});
+      .catch(function(erro_msg) {
+        res.json(erro_msg)
+      })
     })
-  }).catch(function(code){
-    res.json({'success': false, 'msg': "Unable to pass the Recaptcha"});
+    .catch(function(has_name_or_error) {
+      res.json(has_name_or_error)
+    })
+  })
+  .catch(function(captcha_not_passed) {
+    res.json(captcha_not_passed)
   })
 });
 
