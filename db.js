@@ -90,7 +90,7 @@ function get_users(req) {
         let collection = db.get(db_cfg.COLLECTION);
         collection.find({}, { fields : { name : 1} })
         .then(function(docs){
-            resolve({'success': true, 'msg': "Got users", 'return': docs})
+            resolve({'success': true, 'msg': "Got users", 'users': docs})
         })
         .catch(function(e, docs) {
             reject({'success': false, 'msg': "Unable to fetch user data or internal errors occurred"})

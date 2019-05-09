@@ -5,11 +5,11 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
+    <% if (locals.name) { %>
+      <p>Currently logined as <%= name %></p>
       <form action="users/logout">
         <input type="submit" value="Log Out" />
       </form>
-    <% if (this.msg) { %>
-    <p><%= msg %></p>
     <% }%>
     <h1>User List</h1>
     <ul>
