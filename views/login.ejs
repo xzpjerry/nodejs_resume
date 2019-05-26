@@ -64,15 +64,19 @@
         })// Promise(s)
         .then((res) => res.json())
         .then((data) => {
-          if(data['success'] == undefined || data['success'] == '' || data['success'] == null) {
+          if(data['success'] == undefined || data['success'] == '' || data['success'] == null) 
+          {
             if(data['msg']) {
               alert(data['msg'])
             }
-          } else if(data['success'] == false){
+          } 
+          else if(data['success'] == false){
             if(data['msg']) {
               alert(data['msg'])
             }
-          } else {
+          } 
+          else 
+          {
             document.location.href = data['bounceback']
           }
         })

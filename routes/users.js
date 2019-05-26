@@ -2,26 +2,9 @@ var express = require('express');
 var router = express.Router();
 var captcha = require('../captcha');
 var db_util = require('../db');
-const checkLogin = (req, res, next) => {
-  // Checks if the user is logged in
-  db_util.isLogined(req)
-  .then(function(it_is){
-    // If user is logged in
-    // go on
-    next();
-  })
-  .catch(function(it_is_not){
-    // If user is not logged in
-    // Get relative path of current url
-    const url = req.originalUrl;
-    // And redirect to login page, passing
-    // the url as a query string that the client
-    // would return to after successfully logined
-    res.redirect('/users/login/?bounceback='+url);
-  })
-}
 
-router.get('/', checkLogin, function(req, res) {
+
+router.get('/', db_util.checkLogin, function(req, res) {
   db_util.get_users(req)
   .then(function(rslt) {
     res.render('userlist', {
@@ -36,11 +19,15 @@ router.get('/', checkLogin, function(req, res) {
 
 router.get('/logout', function(req, res, next){
   res.clearCookie("nodejs_resume");
-  res.redirect('/users/login');
+  res.redirect(req.query.bounceback || '/users/login');
 });
 
 router.get('/login', function(req, res, next) {
-  req.cookies['nodejs_resume_bounceback'] = req.query.bounceback || '/users'
+  res.cookie(
+    'nodejs_resume_bounceback', 
+    {
+      bounceback: req.query.bounceback || '/users', 
+    }, {maxAge: 86400000})
   res.render('login', { siteKey: captcha.CAPTCHA_CFG["SITEKEY"] })
 });
 
@@ -51,12 +38,13 @@ router.post('/login', function(req, res) {
     .then(function(pwd_passed){
       db_util.update_Last_LoginTime(req)
       .then(function(updated_result) {
-        res.cookie("nodejs_resume", {
+        res.cookie(
+          "nodejs_resume", {
           name: updated_result['username'], 
           hash: updated_result['t_hash'], 
           expire: updated_result['expire']
         }, {maxAge: 86400000})
-        pwd_passed['bounceback'] = req.cookies['nodejs_resume_bounceback'] || '/users'
+        pwd_passed['bounceback'] = req.cookies['nodejs_resume_bounceback']['bounceback'] || '/users'
         res.clearCookie('nodejs_resume_bounceback')
         res.json(pwd_passed)
       })
