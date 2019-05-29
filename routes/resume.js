@@ -1,13 +1,16 @@
 var express = require('express');
 var router = express.Router();
 var db_util = require('../db');
-
+function allSkippingErrors(promises) {
+  return Promise.all(
+    promises.map(p => p.catch(error => null))
+  )
+}
 /* GET resume page. */
 router.get('/', function(req, res, next) {
   let avatar_promise = db_util.DBretrieveOne(req.db, db_util.config.RESUME_HOME_COLLECTION, "avatar")
   let about_me = db_util.DBretrieve(req.db, db_util.config.RESUME_HOME_COLLECTION, "about-me")
-
-  Promise.all([avatar_promise, about_me])
+  allSkippingErrors([avatar_promise, about_me])
   .then(function(values) {
     db_util.isLogined(req)
     .then(function(is_logined) {
@@ -33,30 +36,48 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/delete', function(req, res) {
-  db_util.DBdelete(req.db, db_util.config.RESUME_HOME_COLLECTION, req.body['oid'])
-  .then(function(rslt) {
-    res.json(rslt)
+  db_util.isLogined(req)
+  .then(function(is_logined) {
+    db_util.DBdelete(req.db, req.body['collection'], req.body['oid'])
+    .then(function(rslt) {
+      res.json(rslt)
+    })
+    .catch(function(rslt) {
+      res.json(rslt)
+    })
   })
-  .catch(function(rslt) {
-    res.json(rslt)
+  .catch(function(err) {
+    res.send(500)
   })
 });
 router.post('/upload/text', function(req, res) {
-  db_util.DBsave(req.db, req.body['new_aboutme'], db_util.config.RESUME_HOME_COLLECTION, req.body['id'])
-  .then(function(rslt) {
-    res.redirect('back');
+  db_util.isLogined(req)
+  .then(function(is_logined) {
+    db_util.DBsave(req.db, req.body['text'], req.body['collection'], req.body['id'])
+    .then(function(rslt) {
+      res.redirect('back');
+    })
+    .catch(function(rslt) {
+      res.json(rslt)
+    })
   })
-  .catch(function(rslt) {
-    res.json(rslt)
+  .catch(function(err) {
+    res.send(500)
   })
 });
 router.post('/upload/image', function(req, res) {
-  db_util.DBsaveOne(req.db, req.body['image'], db_util.config.RESUME_HOME_COLLECTION, req.body['id'])
-  .then(function(rslt) {
-    res.json(rslt)
+  db_util.isLogined(req)
+  .then(function(is_logined) {
+    db_util.DBsaveOne(req.db, req.body['image'], req.body['collection'], req.body['id'])
+    .then(function(rslt) {
+      res.json(rslt)
+    })
+    .catch(function(rslt) {
+      res.json(rslt)
+    })
   })
-  .catch(function(rslt) {
-    res.json(rslt)
+  .catch(function(err) {
+    res.send(500)
   })
 });
 

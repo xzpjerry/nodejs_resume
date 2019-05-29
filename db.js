@@ -4,6 +4,7 @@ let createHash = require('crypto').createHash
 const config = {
     // DB: 'mongodb://mongo:27017/nodetest1'
     DB: 'worker:3789610C-005D-4676-8EAE-C52A73DBFF7B@ds213229.mlab.com:13229/xzpjerryblog',
+    COLLECTIONS: ['blog_users', 'home_page'],
     USER_COLLECTION: 'blog_users',
     RESUME_HOME_COLLECTION: 'home_page'
 }
@@ -198,6 +199,9 @@ function doesn_has_user_name(req) {
 
 function DBdelete(db, from_collection, with_oid) {
     return new Promise(function(resolve, reject){
+        if(!config.COLLECTIONS.includes(from_collection)) {
+            return reject({'success': false, 'msg': "Unable to delete the data or internal errors occurred"})
+        }
         let collection = db.get(from_collection);
         collection.findOneAndDelete({_id: monk_id(with_oid)})
         .then(function(){
@@ -211,6 +215,9 @@ function DBdelete(db, from_collection, with_oid) {
 
 function DBsave(db, the_data, to_collection, with_id) {
     return new Promise(function(resolve, reject){
+        if(!config.COLLECTIONS.includes(to_collection)) {
+            return reject({'success': false, 'msg': "Unable to insert the data or internal errors occurred"})
+        }
         let collection = db.get(to_collection);
         collection.insert({
             'id' : with_id,
@@ -226,6 +233,9 @@ function DBsave(db, the_data, to_collection, with_id) {
 }
 function DBretrieve(db, from_collection, with_id) {
     return new Promise(function(resolve, reject){
+        if(!config.COLLECTIONS.includes(from_collection)) {
+            return reject({'success': false, 'msg': "Unable to get the data or internal errors occurred"})
+        }
         let collection = db.get(from_collection);
         collection.find({id: with_id}, {})
         .then(function(docs) {
@@ -244,6 +254,9 @@ function DBretrieve(db, from_collection, with_id) {
 
 function DBsaveOne(db, the_data, to_collection, with_id) {
     return new Promise(function(resolve, reject){
+        if(!config.COLLECTIONS.includes(to_collection)) {
+            return reject({'success': false, 'msg': "Unable to insert the data or internal errors occurred"})
+        }
         let collection = db.get(to_collection);
         collection.update(
             {id: with_id},
@@ -263,9 +276,9 @@ function DBsaveOne(db, the_data, to_collection, with_id) {
 }
 function DBretrieveOne(db, from_collection, with_id) {
     return new Promise(function(resolve, reject){
-        // if(!(from_collection in config)) {
-        //     reject({'success': false, 'msg': "The collection specified is not found."})
-        // }
+        if(!config.COLLECTIONS.includes(from_collection)) {
+            return reject({'success': false, 'msg': "Unable to insert the data or internal errors occurred"})
+        }
         let collection = db.get(from_collection);
         collection.findOne({id: with_id}, {})
         .then(function(doc) {

@@ -38,19 +38,22 @@
                   <% } %>
                 </div>
                 <div class="about-me">
-                  <% for (i = 0; i < aboutme['return'].length; i++) { %>
-                    <p><%- aboutme['return'][i]['data'] -%>
-                    <% if (locals.login && login) { %>
-                    <button class="delete_about_me" id="<%= aboutme['return'][i]['_id'] %>">Delete Me</button>
+                  <% if (locals.aboutme) { %>
+                    <% for (i = 0; i < aboutme['return'].length; i++) { %>
+                      <p><%- aboutme['return'][i]['data'] -%>
+                      <% if (locals.login && login) { %>
+                      <button class="delete_about_me" id="<%= aboutme['return'][i]['_id'] %>">Delete Me</button>
+                      <% } %>
+                      </p>
                     <% } %>
-                    </p>
                   <% } %>
                   <% if (locals.login && login) { %>
                   <p id="test_drive"></p>  
                   <form action="/resume/upload/text" method="post">
-                    <textarea id="new_aboutme" name="new_aboutme" style="width:100%;height:150px;">Hello! I am <strong>Zhipeng Xie</strong>. I am seeking a Software Enginnering Internship during the Summer 2019/2020.</textarea>
+                    <textarea id="text" name="text" style="width:100%;height:150px;">Hello! I am <strong>Zhipeng Xie</strong>. I am seeking a Software Enginnering Internship during the Summer 2019/2020.</textarea>
                     <br>
                     <input type="hidden" id="id" name="id" value="about-me">
+                    <input type="hidden" id="collection" name="collection" value="home_page">
                     <button type="button" id="cancelPreview">Cancel the Preview</button>
                     <input type="submit" value="Submit" />
                   </form>
@@ -130,6 +133,7 @@
                   body: JSON.stringify({
                     image: img_b64,
                     id: "avatar",
+                    collection: "home_page",
                   })
                 })// Promise(s)
                 .then((res) => res.json())
@@ -139,8 +143,8 @@
               })
         })
 
-        $("#new_aboutme").on('input', function(e){
-          $("#test_drive").html($("#new_aboutme").val())
+        $("#text").on('input', function(e){
+          $("#test_drive").html($("#text").val())
         })
         $("#cancelPreview").click(function() {
           $("#test_drive").empty()
@@ -156,6 +160,7 @@
             },
             body: JSON.stringify({
               oid: $(this).attr( "id" ),
+              collection: 'home_page',
             })
           })// Promise(s)
           .then((res) => res.json())
