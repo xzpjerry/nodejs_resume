@@ -5,9 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Jerry's Resume</title>
-    <link rel="stylesheet" href="resume_assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/resume_assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
-    <link rel="stylesheet" href="resume_assets/fonts/ionicons.min.css">
+    <link rel="stylesheet" href="/resume_assets/fonts/ionicons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
 </head>
 
@@ -17,13 +17,13 @@
             <div class="collapse navbar-collapse"
                 id="navbarNav">
                 <ul class="nav navbar-nav ml-auto">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="index.html">Home</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="/resume">Home</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="projects-no-images.html">Projects</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="cv.html">Resume</a></li>
                     <% if (locals.login && login) { %>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume">Log out</a></li>
                     <% } else { %>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login?bounceback=/resume">Log in</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login?bounceback=/resume">Create yours</a></li>
                     <% } %>
                 </ul>
             </div>
@@ -49,11 +49,11 @@
                   <% } %>
                   <% if (locals.login && login) { %>
                   <p id="test_drive"></p>  
-                  <form action="/resume/upload/text" method="post">
+                  <form action="/resume/upload/text/<%= name %>" method="post">
                     <textarea id="text" name="text" style="width:100%;height:150px;">Hello! I am <strong>Zhipeng Xie</strong>. I am seeking a Software Enginnering Internship during the Summer 2019/2020.</textarea>
                     <br>
                     <input type="hidden" id="id" name="id" value="about-me">
-                    <input type="hidden" id="collection" name="collection" value="home_page">
+                    <input type="hidden" id="kind" name="kind" value="home_page">
                     <button type="button" id="cancelPreview">Cancel the Preview</button>
                     <input type="submit" value="Submit" />
                   </form>
@@ -99,10 +99,10 @@
         </section>
     </main>
     <footer class="page-footer"></footer>
-    <script src="resume_assets/js/jquery.min.js"></script>
-    <script src="resume_assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/resume_assets/js/jquery.min.js"></script>
+    <script src="/resume_assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
-    <script src="resume_assets/js/script.min.js"></script>
+    <script src="/resume_assets/js/script.min.js"></script>
 
     <% if (locals.login && login) { %>
     <script>
@@ -124,7 +124,7 @@
             encodeImageFileAsURL(new_img_input_ele)
             .then((img_b64) =>
               {
-                fetch('/resume/upload/image', {
+                fetch('/resume/upload/image/<%= name %>', {
                   method: 'POST',
                   headers: {
                     'Accept': 'application/json, text/plain',
@@ -133,7 +133,7 @@
                   body: JSON.stringify({
                     image: img_b64,
                     id: "avatar",
-                    collection: "home_page",
+                    kind: "home_page",
                   })
                 })// Promise(s)
                 .then((res) => res.json())
@@ -152,7 +152,7 @@
         $(".delete_about_me").click(function(){
           var retVal = confirm("Do you want to delete this?")
           if(!retVal){return}
-          fetch('/resume/delete', {
+          fetch('/resume/delete/<%= name %>', {
             method: 'POST',
             headers: {
               'Accept': 'application/json, text/plain',
@@ -160,14 +160,10 @@
             },
             body: JSON.stringify({
               oid: $(this).attr( "id" ),
-              collection: 'home_page',
             })
           })// Promise(s)
           .then((res) => res.json())
           .then((data) => {
-            // if(data['success']) {
-            // } else {
-            // }
             location.reload();
           })
         })

@@ -7,15 +7,17 @@ function allSkippingErrors(promises) {
   )
 }
 /* GET resume page. */
-router.get('/', function(req, res, next) {
-  let avatar_promise = db_util.DBretrieveOne(req.db, db_util.config.RESUME_HOME_COLLECTION, "avatar")
-  let about_me = db_util.DBretrieve(req.db, db_util.config.RESUME_HOME_COLLECTION, "about-me")
+router.get('/:username', function(req, res, next) {
+  let username = req.params.username
+  let avatar_promise = db_util.DBretrieveOne(req.db, username, "avatar", "home_page")
+  let about_me = db_util.DBretrieve(req.db, username, "about-me", "home_page")
   allSkippingErrors([avatar_promise, about_me])
   .then(function(values) {
-    db_util.isLogined(req)
+    db_util.isLogined_as(req, username)
     .then(function(is_logined) {
       let home_page_dict = {
         login: true,
+        name: username,
         avatar: values[0],
         aboutme: values[1],
       }
@@ -34,11 +36,48 @@ router.get('/', function(req, res, next) {
     res.send(500)
   })
 });
-
-router.post('/delete', function(req, res) {
+router.get('/', function(req, res, next) {
   db_util.isLogined(req)
+  .then(function(is_logined){
+    let username = req.cookies["nodejs_resume"].name
+    res.redirect('/resume/' + username)
+  })
+  .catch(function(isnot) {
+    let avatar_promise = db_util.DBretrieveOne(req.db, req.db_cfg.DEFAULT_DOC_COLLECTION, "avatar", "home_page")
+    let about_me = db_util.DBretrieve(req.db, req.db_cfg.DEFAULT_DOC_COLLECTION, "about-me", "home_page")
+    allSkippingErrors([avatar_promise, about_me])
+    .then(function(values) {
+      db_util.isLogined_as(req, 'me')
+      .then(function(is_logined) {
+        let home_page_dict = {
+          login: true,
+          name: 'me',
+          avatar: values[0],
+          aboutme: values[1],
+        }
+        res.render('resume', home_page_dict)
+      })
+      .catch(function(isnot) {
+        let home_page_dict = {
+          login: false,
+          avatar: values[0],
+          aboutme: values[1],
+        }
+        res.render('resume', home_page_dict)
+      })
+    })
+    .catch(function(err) {
+      res.send(500)
+    })
+  })
+});
+
+router.post('/delete/:username', function(req, res) {
+  let username = req.params.username
+  db_util.isLogined_as(req, username)
   .then(function(is_logined) {
-    db_util.DBdelete(req.db, req.body['collection'], req.body['oid'])
+    let username = req.cookies["nodejs_resume"].name
+    db_util.DBdelete(req.db, username, req.body['oid'])
     .then(function(rslt) {
       res.json(rslt)
     })
@@ -50,10 +89,12 @@ router.post('/delete', function(req, res) {
     res.send(500)
   })
 });
-router.post('/upload/text', function(req, res) {
-  db_util.isLogined(req)
+router.post('/upload/text/:username', function(req, res) {
+  let username = req.params.username
+  db_util.isLogined_as(req, username)
   .then(function(is_logined) {
-    db_util.DBsave(req.db, req.body['text'], req.body['collection'], req.body['id'])
+    let username = req.cookies["nodejs_resume"].name
+    db_util.DBsave(req.db, req.body['text'], username, req.body['id'], req.body['kind'])
     .then(function(rslt) {
       res.redirect('back');
     })
@@ -65,10 +106,12 @@ router.post('/upload/text', function(req, res) {
     res.send(500)
   })
 });
-router.post('/upload/image', function(req, res) {
-  db_util.isLogined(req)
+router.post('/upload/image/:username', function(req, res) {
+  let username = req.params.username
+  db_util.isLogined_as(req, username)
   .then(function(is_logined) {
-    db_util.DBsaveOne(req.db, req.body['image'], req.body['collection'], req.body['id'])
+    let username = req.cookies["nodejs_resume"].name
+    db_util.DBsaveOne(req.db, req.body['image'], username, req.body['id'], req.body['kind'])
     .then(function(rslt) {
       res.json(rslt)
     })

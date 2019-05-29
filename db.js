@@ -2,11 +2,11 @@
 var monk_id = require('monk').id
 let createHash = require('crypto').createHash
 const config = {
-    // DB: 'mongodb://mongo:27017/nodetest1'
-    DB: 'worker:3789610C-005D-4676-8EAE-C52A73DBFF7B@ds213229.mlab.com:13229/xzpjerryblog',
+    DB: '<To be filled out>',
     COLLECTIONS: ['blog_users', 'home_page'],
     USER_COLLECTION: 'blog_users',
-    RESUME_HOME_COLLECTION: 'home_page'
+    DEFAULT_DOC_COLLECTION: 'me',
+    HOME_PAGE_KIND: 'home_page'
 }
 
 function hashPW(userName, pwd){
@@ -30,6 +30,35 @@ function checkLogin(req, res, next) {
       // the url as a query string that the client
       // would return to after successfully logined
       res.redirect('/users/login/?bounceback='+url);
+    })
+}
+function isLogined_as(req, username) {
+    return new Promise(function(resolve, reject) {
+        if(req.cookies["nodejs_resume"] == null || req.cookies["nodejs_resume"].name == null || req.cookies["nodejs_resume"].name !== username || req.cookies["nodejs_resume"].hash == null || req.cookies["nodejs_resume"].expire == null){
+            reject({'success': false, 'msg': "Unable to fetch user's cookie"})
+        }
+        get_Last_Valid_LoginTime(req)
+        .then(function(rslt1) {
+            let db = req.db;
+            let collection = db.get(config.USER_COLLECTION);
+            collection.findOne({name: username}, {})
+            .then(function(doc){
+                if(doc == undefined || doc == '' || doc == null) {
+                    reject({'success': false, 'msg': "Unable to fetch user data in the database"})
+                }
+                else if(doc['t_hash'] == undefined || doc['t_hash'] !== req.cookies["nodejs_resume"].hash) {
+                    reject({'success': false, 'msg': "Illegal Cookie Credential"})
+                } else {
+                    resolve({'success': true, 'msg': "Using your cookie to log in successfully"})
+                }
+            })
+            .catch(function(e) {
+                reject({'success': false, 'msg': "Unable to connect to the database"})
+            });
+        })
+        .catch(function(e){
+            reject(e)
+        })
     })
 }
 function isLogined(req) {
@@ -79,7 +108,7 @@ function get_Last_Valid_LoginTime(req) {
             else if(doc['expire'] == undefined || doc['expire'] == null) {
                 reject({'success': false, 'msg': "Unable to fetch user data or internal errors occurred"})
             }
-            else if(doc['expire'] <= (new Date()).getTime() ) {
+            else if(doc['expire'] <= (new Date()).getTime()) {
                 reject({'success': false, 'msg': "Cookie Credential Expired"})
             } else {
                 resolve({'success': true, 'msg': "Got your last log-in time", 'return': doc['last']})
@@ -126,29 +155,32 @@ function get_users(req) {
 }
 function sign_up(req) {
     return new Promise(function(resolve, reject){
-        pwd_verify(req)
-        .then(function(e){
-            reject({'success': false, 'msg': "User name existed"})
+        let db = req.db;
+        let collection = db.get(config.USER_COLLECTION);
+        let username = req.body.name
+        collection.insert({
+            'name' : username,
+            'pwd': hashPW(username, req.body.pwd)
         })
-        .catch(function(rslt){
-            if(rslt['msg'] == "User information incorrect") {
-                reject({'success': false, 'msg': "User name existed"})
-            } else {
-                let db = req.db;
-                let db_cfg = req.db_cfg;
-                let collection = db.get(db_cfg.USER_COLLECTION);
-                collection.insert({
-                    'name' : req.body.name,
-                    'pwd': hashPW(req.body.name, req.body.pwd)
+        .then(function(docInserted){
+            let user_doc_collection = db.create(username)
+            let creator_collection = db.get(config.DEFAULT_DOC_COLLECTION)
+            creator_collection.aggregate([{$match:{}},{$out:username}])
+            .then(function(inited_user_doc) {
+                resolve({'success': true, 'msg': "Sign up successfully"})
+            })
+            .catch(function(failed) {
+                DBdelete(db, config.USER_COLLECTION, docInserted['_id'])
+                .then(function(undo_insertion) {
+                    reject({'success': false, 'msg': "Unable to init user data."})
                 })
-                .then(function(){
-                    resolve({'success': true, 'msg': "Sign up successfully"})
+                .catch(function(this_should_not_happen){
+                    reject({'success': false, 'msg': "Internal errors occurred"})
                 })
-                .catch(function(err) {
-                    reject({'success': false, 'msg': "Unable to fetch user data or internal errors occurred"})
-                })
-            }
-            
+            })
+        })
+        .catch(function(err) {
+            reject({'success': false, 'msg': "Unable to fetch user data or internal errors occurred"})
         })
     })
 }
@@ -162,7 +194,7 @@ function pwd_verify(req) {
         collection.findOne({name: name}, {})
         .then(function(doc) {
             if(doc == undefined || doc == '' || doc == null) {
-            reject({'success': false, 'msg': "Unable to fetch user data or internal errors occurred"})
+                reject({'success': false, 'msg': "Unable to fetch user data or internal errors occurred"})
             }
             else if(doc['pwd'] == undefined || doc['pwd'] !== pwd) {
                 reject({'success': false, 'msg': "User information incorrect"})
@@ -199,9 +231,6 @@ function doesn_has_user_name(req) {
 
 function DBdelete(db, from_collection, with_oid) {
     return new Promise(function(resolve, reject){
-        if(!config.COLLECTIONS.includes(from_collection)) {
-            return reject({'success': false, 'msg': "Unable to delete the data or internal errors occurred"})
-        }
         let collection = db.get(from_collection);
         collection.findOneAndDelete({_id: monk_id(with_oid)})
         .then(function(){
@@ -213,15 +242,13 @@ function DBdelete(db, from_collection, with_oid) {
     })
 }
 
-function DBsave(db, the_data, to_collection, with_id) {
+function DBsave(db, the_data, to_collection, with_id, with_kind) {
     return new Promise(function(resolve, reject){
-        if(!config.COLLECTIONS.includes(to_collection)) {
-            return reject({'success': false, 'msg': "Unable to insert the data or internal errors occurred"})
-        }
         let collection = db.get(to_collection);
         collection.insert({
             'id' : with_id,
             'data': the_data,
+            'kind': with_kind,
         })
         .then(function(){
             resolve({'success': true, 'msg': "Inserted successfully"})
@@ -231,13 +258,10 @@ function DBsave(db, the_data, to_collection, with_id) {
         })
     })
 }
-function DBretrieve(db, from_collection, with_id) {
+function DBretrieve(db, from_collection, with_id, with_kind) {
     return new Promise(function(resolve, reject){
-        if(!config.COLLECTIONS.includes(from_collection)) {
-            return reject({'success': false, 'msg': "Unable to get the data or internal errors occurred"})
-        }
         let collection = db.get(from_collection);
-        collection.find({id: with_id}, {})
+        collection.find({id: with_id, kind:with_kind}, {})
         .then(function(docs) {
             if(docs == undefined || docs == '' || docs == null || !docs.length) {
                 reject({'success': false, 'msg': "Unable to fetch user data or internal errors occurred"})
@@ -252,18 +276,16 @@ function DBretrieve(db, from_collection, with_id) {
       });
 }
 
-function DBsaveOne(db, the_data, to_collection, with_id) {
+function DBsaveOne(db, the_data, to_collection, with_id, with_kind) {
     return new Promise(function(resolve, reject){
-        if(!config.COLLECTIONS.includes(to_collection)) {
-            return reject({'success': false, 'msg': "Unable to insert the data or internal errors occurred"})
-        }
         let collection = db.get(to_collection);
         collection.update(
-            {id: with_id},
+            {id: with_id, kind: with_kind},
             {
                 'data' : the_data,
-                'id': with_id
-            }, 
+                'id': with_id,
+                'kind': with_kind,
+            },
             { upsert: true }
         )
         .then(function(){
@@ -274,13 +296,10 @@ function DBsaveOne(db, the_data, to_collection, with_id) {
         })
     })      
 }
-function DBretrieveOne(db, from_collection, with_id) {
+function DBretrieveOne(db, from_collection, with_id, with_kind) {
     return new Promise(function(resolve, reject){
-        if(!config.COLLECTIONS.includes(from_collection)) {
-            return reject({'success': false, 'msg': "Unable to insert the data or internal errors occurred"})
-        }
         let collection = db.get(from_collection);
-        collection.findOne({id: with_id}, {})
+        collection.findOne({id: with_id, kind: with_kind}, {})
         .then(function(doc) {
             if(doc == undefined || doc == '' || doc == null) {
                 reject({'success': false, 'msg': "Unable to fetch user data or internal errors occurred"})
@@ -305,6 +324,7 @@ module.exports = {
     update_Last_LoginTime: update_Last_LoginTime,
     get_Last_Valid_LoginTime: get_Last_Valid_LoginTime,
     isLogined: isLogined,
+    isLogined_as: isLogined_as,
     DBsaveOne: DBsaveOne,
     DBretrieveOne: DBretrieveOne,
     DBsave: DBsave,

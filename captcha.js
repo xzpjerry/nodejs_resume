@@ -1,8 +1,8 @@
 const CAPTCHA_CFG = {
-    // SECRETKEY: "6LcKPJ8UAAAAAJMqKJDnX9KtAGLwA_q8mjccY4f0",
-    // SITEKEY: "6LcKPJ8UAAAAAIHf6q6qws9jCcpejwA-OJVo5G84",
-    SECRETKEY: "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe",//debug key
-    SITEKEY: "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",//debug key
+    SECRETKEY: "<To be filled out>",
+    SITEKEY: "<To be filled out>",
+    // SECRETKEY: "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe",//debug key
+    // SITEKEY: "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",//debug key
     GOOGLE_CAPTCHA_API: 'https://www.google.com/recaptcha/api/siteverify?secret=',
 }
 
