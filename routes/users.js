@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var captcha = require('../captcha');
 var db_util = require('../db');
-
+const username_regex = /^[a-zA-Z][\w-]+$/;
 
 router.get('/', db_util.checkLogin, function(req, res) {
   db_util.get_users(req)
@@ -26,7 +26,7 @@ router.get('/login', function(req, res, next) {
   res.cookie(
     'nodejs_resume_bounceback', 
     {
-      bounceback: req.query.bounceback || '/users', 
+      bounceback: req.query.bounceback || '/resume', 
     }, {maxAge: 86400000})
   res.render('login', { siteKey: captcha.CAPTCHA_CFG["SITEKEY"] })
 });
@@ -44,7 +44,7 @@ router.post('/login', function(req, res) {
           hash: updated_result['t_hash'], 
           expire: updated_result['expire']
         }, {maxAge: 86400000})
-        pwd_passed['bounceback'] = req.cookies['nodejs_resume_bounceback']['bounceback'] || '/users'
+        pwd_passed['bounceback'] = req.cookies['nodejs_resume_bounceback']['bounceback'] || '/resume'
         res.clearCookie('nodejs_resume_bounceback')
         res.json(pwd_passed)
       })
@@ -70,6 +70,10 @@ router.get('/signup', function(req, res) {
 router.post('/signup', function(req, res) {
   captcha.authetication(req)
   .then(function(captcha_passed) {
+    if(!username_regex.test(req.body.name)) {
+      res.json({'success': false, 'msg': "Invalid username, it should begin with a character from a-z or A-Z, following with characters from a-z, A-Z, 0-9, including the _ (underscore) and - (dash) character"})
+      return
+    }
     db_util.doesn_has_user_name(req)
     .then(function(istrue) {
       db_util.sign_up(req)
@@ -77,7 +81,7 @@ router.post('/signup', function(req, res) {
         db_util.update_Last_LoginTime(req)
         .then(function(updated_result) {
           res.cookie("nodejs_resume", {name: updated_result['username'], hash: updated_result['t_hash'], expire: updated_result['expire']}, {maxAge: 86400000})
-          successfully['bounceback'] = req.cookies['nodejs_resume_bounceback'] || '/users'
+          successfully['bounceback'] = req.cookies['nodejs_resume_bounceback']['bounceback'] || '/resume'
           res.clearCookie('nodejs_resume_bounceback')
           res.json(successfully)
         })

@@ -2,7 +2,8 @@
 var monk_id = require('monk').id
 let createHash = require('crypto').createHash
 const config = {
-    DB: '<To be filled out>',
+    DB: require('credential.js').DB,
+    // DB: '<To be filled out>',
     COLLECTIONS: ['blog_users', 'home_page'],
     USER_COLLECTION: 'blog_users',
     DEFAULT_DOC_COLLECTION: 'me',
@@ -16,7 +17,7 @@ function hashPW(userName, pwd){
 }
 function checkLogin(req, res, next) {
     // Checks if the user is logged in
-    isLogined(req)
+    isLogined_as(req, "me")
     .then(function(it_is){
       // If user is logged in
       // go on

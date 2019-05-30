@@ -21,7 +21,7 @@ router.get('/:username', function(req, res, next) {
         avatar: values[0],
         aboutme: values[1],
       }
-      res.render('resume', home_page_dict)
+      res.render('resume_home', home_page_dict)
     })
     .catch(function(isnot) {
       let home_page_dict = {
@@ -29,7 +29,7 @@ router.get('/:username', function(req, res, next) {
         avatar: values[0],
         aboutme: values[1],
       }
-      res.render('resume', home_page_dict)
+      res.render('resume_home', home_page_dict)
     })
   })
   .catch(function(err) {
@@ -44,8 +44,8 @@ router.get('/', function(req, res, next) {
   })
   .catch(function(isnot) {
     let avatar_promise = db_util.DBretrieveOne(req.db, req.db_cfg.DEFAULT_DOC_COLLECTION, "avatar", "home_page")
-    let about_me = db_util.DBretrieve(req.db, req.db_cfg.DEFAULT_DOC_COLLECTION, "about-me", "home_page")
-    allSkippingErrors([avatar_promise, about_me])
+    let about_me_promise = db_util.DBretrieve(req.db, req.db_cfg.DEFAULT_DOC_COLLECTION, "about-me", "home_page")
+    allSkippingErrors([avatar_promise, about_me_promise])
     .then(function(values) {
       db_util.isLogined_as(req, 'me')
       .then(function(is_logined) {
@@ -55,7 +55,7 @@ router.get('/', function(req, res, next) {
           avatar: values[0],
           aboutme: values[1],
         }
-        res.render('resume', home_page_dict)
+        res.render('resume_home', home_page_dict)
       })
       .catch(function(isnot) {
         let home_page_dict = {
@@ -63,7 +63,7 @@ router.get('/', function(req, res, next) {
           avatar: values[0],
           aboutme: values[1],
         }
-        res.render('resume', home_page_dict)
+        res.render('resume_home', home_page_dict)
       })
     })
     .catch(function(err) {
