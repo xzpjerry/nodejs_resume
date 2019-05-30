@@ -26,6 +26,11 @@ const config = require('./db').config;
 var monk = require('monk')
 var db = monk(config.DB)
 app.use(function(req, res, next) {
+  var ua = req.get('User-Agent').toLowerCase();
+  if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+    res.send("<img src='https://i.imgur.com/FQVugpL.png'>")
+    return
+  }
   req.db = db;
   req.db_cfg = config;
   next();
