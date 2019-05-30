@@ -28,7 +28,7 @@ var db = monk(config.DB)
 app.use(function(req, res, next) {
   var ua = req.get('User-Agent').toLowerCase();
   if (ua.match(/MicroMessenger/i) == 'micromessenger') {
-    res.send("<img src='https://i.imgur.com/FQVugpL.png'>")
+    res.send("<img src='images/wechat.png'>")
     return
   }
   req.db = db;
