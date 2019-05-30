@@ -1,8 +1,9 @@
 // db.js
 var monk_id = require('monk').id
 let createHash = require('crypto').createHash
+const credential = require("./credential.js")
 const config = {
-    DB: require('credential.js').DB,
+    DB: credential.DB,
     // DB: '<To be filled out>',
     COLLECTIONS: ['blog_users', 'home_page'],
     USER_COLLECTION: 'blog_users',

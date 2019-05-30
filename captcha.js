@@ -1,6 +1,7 @@
+const credential = require("./credential.js")
 const CAPTCHA_CFG = {
-    SECRETKEY: require("credential.js").SECRETKEY,
-    SITEKEY: require("credential.js").SITEKEY,
+    SECRETKEY: credential.SECRETKEY,
+    SITEKEY: credential.SITEKEY,
     // SECRETKEY: "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe",//debug key
     // SITEKEY: "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",//debug key
     GOOGLE_CAPTCHA_API: 'https://www.google.com/recaptcha/api/siteverify?secret=',
