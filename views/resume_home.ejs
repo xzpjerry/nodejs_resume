@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
     <link rel="stylesheet" href="/resume_assets/fonts/ionicons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
-</head>
+    <link rel="stylesheet" href="/stylesheets/croppie.css" />
+  </head>
 
 <body>
     <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
@@ -19,7 +20,7 @@
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="/resume">Home</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_projects">Projects</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="#">Resume</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_cv">Resume</a></li>
                     <% if (locals.login && login) { %>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume">Log out</a></li>
                     <% } else { %>
@@ -32,10 +33,13 @@
     <main class="page lanidng-page">
         <section class="portfolio-block block-intro">
             <div class="container">
-                <div class="avatar" id="avatar" style="background-image:url(<%= avatar['return'] %>);">
                   <% if (locals.login && login) { %>
+                  <div class="avatar upload-demo" id="avatar" style="background-image:url(<%= avatar['return'] %>);"></div>
                   <input type="file" id="avatar_file" accept="image/*">
-                  <% } %>
+                  <button id="upload-result">upload</button>
+                  <% } else { %>
+                    <div class="avatar" id="avatar" style="background-image:url(<%= avatar['return'] %>);"></div>
+                  <% }%>
                 </div>
                 <div class="about-me">
                   <% if (locals.aboutme) { %>
@@ -103,46 +107,81 @@
     <script src="/resume_assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
     <script src="/resume_assets/js/script.min.js"></script>
+    <script src="/javascripts/croppie.min.js"></script>
 
     <% if (locals.login && login) { %>
     <script>
-      function encodeImageFileAsURL(element) {
-        var file = element.files[0];
-        return new Promise(
-          function(resolve, reject) {
-            var reader = new FileReader();
-            reader.onloadend = function() {
-              resolve(reader.result)
+      function Upload() {
+        var $uploadCrop;
+        function readFile(input) {
+          if (input.files && input.files[0]) {
+                  var reader = new FileReader();
+                  reader.onload = function (e) {
+              $('.upload-demo').addClass('ready');
+                    $uploadCrop.croppie('bind', {
+                      url: e.target.result
+                    }).then(function(){
+                      console.log('jQuery bind complete');
+                    });
+                    
+                  }
+                  reader.readAsDataURL(input.files[0]);
+              }
+              else {
+                console.log("Sorry - you're browser doesn't support the FileReader API");
             }
-            reader.readAsDataURL(file)
-          }
-        )
+        }
+
+        $uploadCrop = $('.upload-demo').croppie({
+          viewport: {
+            width: 100,
+            height: 100,
+            type: 'circle'
+          },
+          enableExif: true
+        });
+
+        $('#avatar_file').on('change', function () { readFile(this); });
+        $('#upload-result').on('click', function (ev) {
+          $uploadCrop.croppie('result', {
+            type: 'canvas',
+            size: 'viewport'
+          }).then(function (resp) {
+            fetch('/resume/upload/image/<%= name %>', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json, text/plain',
+                'Content-type': 'application/json'
+              },
+              body: JSON.stringify({
+                image: resp,
+                id: "avatar",
+                kind: "home_page",
+              })
+            })// Promise(s)
+            .then((res) => res.json())
+            .then((data) => {
+              if(data['success'] == undefined || data['success'] == '' || data['success'] == null) 
+              {
+                if(data['msg']) {
+                  alert(data['msg'])
+                }
+              } 
+              else if(data['success'] == false){
+                if(data['msg']) {
+                  alert(data['msg'])
+                }
+              } 
+              else 
+              {
+                $("#avatar").attr("style", "background-image:url(" + resp + ")")
+              }
+            })
+          });
+        });
       }
       $(document).ready(function(){
-        $("#avatar_file").change(function(e){
-            const new_img_input_ele = document.getElementById("avatar_file")
-            encodeImageFileAsURL(new_img_input_ele)
-            .then((img_b64) =>
-              {
-                fetch('/resume/upload/image/<%= name %>', {
-                  method: 'POST',
-                  headers: {
-                    'Accept': 'application/json, text/plain',
-                    'Content-type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    image: img_b64,
-                    id: "avatar",
-                    kind: "home_page",
-                  })
-                })// Promise(s)
-                .then((res) => res.json())
-                .then((data) => {
-                  $("#avatar").attr("style", "background-image:url(" + img_b64 + ")")
-                })
-              })
-        })
-
+        Upload()
         $("#text").on('input', function(e){
           $("#test_drive").html($("#text").val())
         })

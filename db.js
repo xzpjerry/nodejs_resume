@@ -174,7 +174,7 @@ function sign_up(req) {
             .catch(function(failed) {
                 DBdelete(db, config.USER_COLLECTION, docInserted['_id'])
                 .then(function(undo_insertion) {
-                    reject({'success': false, 'msg': "Unable to init user data."})
+                    reject({'success': false, 'msg': "Unable to init user data." + undo_insertion})
                 })
                 .catch(function(this_should_not_happen){
                     reject({'success': false, 'msg': "Internal errors occurred"})
