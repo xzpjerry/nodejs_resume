@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>简历app注册</title>
+    <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+    <script src="https://www.recaptcha.net/recaptcha/api.js" async defer></script>
+  </head>
+  <body>
+    <div class="container"><br />
+      <h1>简历app注册</h1><br />
+      <form id="signupForm" method="POST">
+        <div class="row">
+          <div class="col-md-4"></div>
+          <div class="form-group col-md-4">
+            <label for="name">用户名:</label>
+            <input type="text" class="form-control" id="name" name="name">
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="form-group col-md-4">
+              <label for="pwd">密码:</label>
+              <input type="password" class="form-control" id="pwd" name="pwd">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4"></div>
+            <div class="form-group col-md-4">
+            <div class="g-recaptcha" data-sitekey=<%= siteKey %>></div>
+            </div>
+          </div>
+        <div class="row">
+          <div class="col-md-4"></div>
+          <div class="form-group col-md-4">
+            <button type="submit" class="btn btn-primary">注册</button>
+            <a href="/users/login">已有账号了？</a>
+          </div>
+        </div>
+      </form>
+    </div>
+    <script src="/javascripts/bundle_crypto.js"></script>
+    <script>
+      document.getElementById('signupForm').addEventListener('submit', submit_login);
+      function submit_login(e) {
+        e.preventDefault();
+        const captcha = document.querySelector('#g-recaptcha-response').value
+        const name = document.querySelector("#name").value;
+        const pwd = hashPW(name, document.querySelector("#pwd").value);
+        if(captcha == null || captcha == '' || captcha == undefined) {
+          alert("Please check the captcha box first.")
+          return
+        }
+        fetch('/users/signup', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json, text/plain',
+            'Content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: name,
+            pwd: pwd,
+            captcha: captcha
+          })
+        })// Promise(s)
+        .then((res) => res.json())
+        .then((data) => {
+          if(data['success'] == undefined || data['success'] == '' || data['success'] == null) {
+            if(data['msg']) {
+              alert(data['msg'])
+            }
+          } else if(data['success'] == false){
+            if(data['msg']) {
+              alert(data['msg'])
+            }
+          } else {
+            document.location.href = data['bounceback']
+          }
+        })
+      }
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简历 - 植鹏的简历app</title>
+    <link rel="stylesheet" href="/resume_assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
+    <link rel="stylesheet" href="/resume_assets/fonts/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
+        <div class="container"><a class="navbar-brand logo" href="#"></a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse"
+                id="navbarNav">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="/resume">首页</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_projects">项目</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_cv">简历</a></li>
+                    <% if (locals.login && login) { %>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume">登出</a></li>
+                    <% } else { %>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login?bounceback=/resume">制作你的简历</a></li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="page cv-page">
+        <section class="portfolio-block cv">
+            <div class="education group">
+                <div class="heading">
+                    <h2 class="text-center">教育</h2>
+                </div>
+                <div class="item">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3>计算机科学</h3>
+                            <h4 class="organization">俄勒冈大学, 尤金, 俄勒冈州，美国</h4>
+                        </div>
+                        <div class="col-md-6"><span class="period">09/2016 - 09/2019(预计)</span></div>
+                    </div>
+                    <p class="text-muted"><em>计算机科学理学学士(计算机网络方向) GPA: 3.62/4.0</em></p>
+                </div>
+            </div>
+            <div class="container">
+                <div class="work-experience group">
+                    <div class="heading">
+                        <h2 class="text-center">工作经验</h2>
+                    </div>
+                    <div class="item">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3>课程助教(<em>iOS 开发课程).</em><br></h3>
+                                <h4 class="organization">俄勒冈大学, 尤金, 俄勒冈州<br></h4>
+                            </div>
+                            <div class="col-md-6"><span class="period">06/2018 - 09/2018</span></div>
+                        </div>
+                        <p class="text-muted">帮助讲师备课以及批阅学生作业，包括用Swift4编写的程序项目。</p>
+                        <p class="text-muted">在工作过程中与讲师积极沟通协作，每周通过电子邮件发送本周总结。</p>
+                        <p class="text-muted">至少在任务截止前三天完成讲师布置的备课和批阅作业任务。</p>
+                    </div>
+                </div>
+                <div class="group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="skills portfolio-info-card">
+                                <h2>技能</h2>
+                                <h3>Python3</h3>
+                                <div class="progress">
+                                    <div class="progress-bar" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100" style="width: 88%;"><span class="sr-only">88%</span></div>
+                                </div>
+                                <h3><strong>JavaScript + Node.JS</strong></h3>
+                                <div class="progress">
+                                    <div class="progress-bar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 70%;"><span class="sr-only">70%</span></div>
+                                </div>
+                                <h3>Java</h3>
+                                <div class="progress">
+                                    <div class="progress-bar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%;"><span class="sr-only">50%</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="contact-info portfolio-info-card">
+                                <h2>联系方式</h2>
+                                <div class="row">
+                                    <div class="col-1"><i class="icon ion-person icon"></i></div>
+                                    <div class="col-9"><span>谢植鹏</span></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-1"><i class="icon ion-at icon"></i></div>
+                                    <div class="col-9"><span>zhipengx@uoregon.edu</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="/resume_assets/js/jquery.min.js"></script>
+    <script src="/resume_assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
+    <script src="/resume_assets/js/script.min.js"></script>
+</body>
+
+</html>

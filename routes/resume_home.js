@@ -21,7 +21,12 @@ router.get('/:username', function(req, res, next) {
         avatar: values[0],
         aboutme: values[1],
       }
-      res.render('resume_home', home_page_dict)
+      let need_zh = req.acceptsLanguages(['zh'])
+      if(need_zh) {
+        res.render('resume_home_cn', home_page_dict)
+      } else {
+        res.render('resume_home', home_page_dict)
+      }
     })
     .catch(function(isnot) {
       let home_page_dict = {
@@ -29,7 +34,12 @@ router.get('/:username', function(req, res, next) {
         avatar: values[0],
         aboutme: values[1],
       }
-      res.render('resume_home', home_page_dict)
+      let need_zh = req.acceptsLanguages(['zh'])
+      if(need_zh) {
+        res.render('resume_home_cn', home_page_dict)
+      } else {
+        res.render('resume_home', home_page_dict)
+      }
     })
   })
   .catch(function(err) {
@@ -55,7 +65,12 @@ router.get('/', function(req, res, next) {
           avatar: values[0],
           aboutme: values[1],
         }
-        res.render('resume_home', home_page_dict)
+        let need_zh = req.acceptsLanguages(['zh'])
+        if(need_zh) {
+          res.render('resume_home_cn', home_page_dict)
+        } else {
+          res.render('resume_home', home_page_dict)
+        }
       })
       .catch(function(isnot) {
         let home_page_dict = {
@@ -63,7 +78,12 @@ router.get('/', function(req, res, next) {
           avatar: values[0],
           aboutme: values[1],
         }
-        res.render('resume_home', home_page_dict)
+        let need_zh = req.acceptsLanguages(['zh'])
+        if(need_zh) {
+          res.render('resume_home_cn', home_page_dict)
+        } else {
+          res.render('resume_home', home_page_dict)
+        }
       })
     })
     .catch(function(err) {

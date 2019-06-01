@@ -28,7 +28,12 @@ router.get('/login', function(req, res, next) {
     {
       bounceback: req.query.bounceback || '/resume', 
     }, {maxAge: 86400000})
-  res.render('login', { siteKey: captcha.CAPTCHA_CFG["SITEKEY"] })
+  let need_zh = req.acceptsLanguages(['zh'])
+  if(need_zh) {
+    res.render('login_cn', { siteKey: captcha.CAPTCHA_CFG["SITEKEY"] })
+  } else {
+    res.render('login', { siteKey: captcha.CAPTCHA_CFG["SITEKEY"] })
+  }
 });
 
 router.post('/login', function(req, res) {
@@ -63,7 +68,12 @@ router.post('/login', function(req, res) {
 });
 
 router.get('/signup', function(req, res) {
+  let need_zh = req.acceptsLanguages(['zh'])
+  if(need_zh) {
+    res.render('newuser_cn', { siteKey: captcha.CAPTCHA_CFG["SITEKEY"] })
+  } else {
     res.render('newuser', { siteKey: captcha.CAPTCHA_CFG["SITEKEY"] })
+  }
 })
 
 

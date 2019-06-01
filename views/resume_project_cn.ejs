@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目 - 植鹏的简历app</title>
+    <link rel="stylesheet" href="/resume_assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
+    <link rel="stylesheet" href="/resume_assets/fonts/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
+        <div class="container"><a class="navbar-brand logo" href="#"></a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse"
+                id="navbarNav">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="/resume">首页</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_projects">项目</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_cv">简历</a></li>
+                    <% if (locals.login && login) { %>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume">登出</a></li>
+                    <% } else { %>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login?bounceback=/resume">制作你的简历</a></li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="page projets-page">
+        <section class="portfolio-block project-no-images">
+            <div class="container-fluid" data-aos="fade">
+                <div class="heading">
+                    <h2>精选项目</h2>
+                </div>
+                <div class="row m-auto">
+                    <div class="col-auto col-md-6 col-lg-4 flex-grow-1 flex-fill">
+                        <div class="flex-grow-1 flex-fill project-card-no-image">
+                            <h3>Cold Caller 课堂点名系统</h3>
+                            <h4>Python3<br></h4>
+                            <h4>帮助提高学生上课积极性</h4>
+                            <h4>为项目设计系统架构，在一周内帮助小组完成工作分配。</h4>
+                            <h4>设计并实现了大部分系统用户界面，并且帮助降低用户界面与其他系统组件的耦合度。</h4><a class="btn btn-outline-primary btn-sm" role="button" href="https://github.com/xzpjerry/422P1">了解更多</a>
+                            <div
+                                class="tags"></div>
+                    </div><a href="#"></a></div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="project-card-no-image">
+                        <h3>NodeJs Resume （本简历app）<br></h3>
+                        <h4>JavaScript, NODE.JS, MongoDB, Recaptcha<br></h4>
+                        <h4>一开始只是为了方便自己更新和展示简历，最后发现做成简历托管系统更好，遂诞生本app。</h4>
+                        <h4>一个人独立开发了本app。</h4>
+                        <h4>使用了Recaptcha提高了恶意注册的难度。</h4>
+                        <h4>使用MongoDB存储用户文档数据，存放在mLab的远程数据库上。</h4><a class="btn btn-outline-primary btn-sm" role="button" href="https://github.com/xzpjerry/nodejs_resume">了解更多</a>
+                        <div class="tags"></div>
+                    </div><a href="#"></a></div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="project-card-no-image">
+                        <h3>区块链竞选系统<br></h3>
+                        <h4>Python3, Flask, JavaScript, JQuery, Docker<br></h4>
+                        <h4>一个自学区块链的课余项目</h4>
+                        <h4>基于一个简易的区块链货币交易系统，对上千行的代码进行更改优化以达到目标。</h4>
+                        <h4>曾使用Docker将本app在Google Cloud上线。（现已不再维护）</h4><a class="btn btn-outline-primary btn-sm" role="button" href="https://github.com/xzpjerry/P2P_BlockChainBased_Voting_System">了解更多</a>
+                        <div
+                            class="tags"></div>
+                </div><a href="#"></a></div>
+            </div>
+            </div>
+        </section>
+    </main>
+    <script src="/resume_assets/js/jquery.min.js"></script>
+    <script src="/resume_assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
+    <script src="/resume_assets/js/script.min.js"></script>
+</body>
+
+</html>

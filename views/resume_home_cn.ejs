@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页 - 植鹏的简历app</title>
+    <link rel="stylesheet" href="/resume_assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
+    <link rel="stylesheet" href="/resume_assets/fonts/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
+    <link rel="stylesheet" href="/stylesheets/croppie.css" />
+  </head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
+        <div class="container"><a class="navbar-brand logo" href="#"></a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse"
+                id="navbarNav">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="/resume">主页</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_projects">项目</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_cv">简历</a></li>
+                    <% if (locals.login && login) { %>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume">登出</a></li>
+                    <% } else { %>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login?bounceback=/resume">制作你的简历</a></li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="page lanidng-page">
+        <section class="portfolio-block block-intro">
+            <div class="container">
+                  <% if (locals.login && login) { %>
+                  <div class="avatar upload-demo" id="avatar" style="background-image:url(<%= avatar['return'] %>);"></div>
+                  <input type="file" id="avatar_file" accept="image/*">
+                  <button id="upload-result">上传新头像</button>
+                  <% } else { %>
+                    <div class="avatar" id="avatar" style="background-image:url(<%= avatar['return'] %>);"></div>
+                  <% }%>
+                </div>
+                <div class="about-me">
+                  <% if (locals.aboutme) { %>
+                    <% for (i = 0; i < aboutme['return'].length; i++) { %>
+                      <p><%- aboutme['return'][i]['data'] -%>
+                      <% if (locals.login && login) { %>
+                      <button class="delete_about_me" id="<%= aboutme['return'][i]['_id'] %>">删掉这一条</button>
+                      <% } %>
+                      </p>
+                    <% } %>
+                  <% } %>
+                  <% if (locals.login && login) { %>
+                  <p id="test_drive"></p>  
+                  <form action="/resume/upload/text/<%= name %>" method="post">
+                    <textarea id="text" name="text" style="width:100%;height:150px;">你好，我是 <strong>谢植鹏</strong>。我希望能加入贵司的实习项目中。</textarea>
+                    <br>
+                    <input type="hidden" id="id" name="id" value="about-me">
+                    <input type="hidden" id="kind" name="kind" value="home_page">
+                    <button type="button" id="cancelPreview">取消预览</button>
+                    <input type="submit" value="Submit" />
+                  </form>
+                  <% } %>
+                </div>
+            </div>
+        </section>
+        <section class="portfolio-block skills">
+            <div class="container">
+                <div class="heading">
+                    <h2>特别技能</h2>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card special-skill-item border-0">
+                            <div class="card-header bg-transparent border-0"><i class="icon ion-ios-star-outline"></i></div>
+                            <div class="card-body">
+                                <h3 class="card-title">Webapp 开发</h3>
+                                <p class="card-text">熟悉使用 Python3+Flask, JavaScript, Node.JS 进行Webapp开发。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card special-skill-item border-0">
+                            <div class="card-header bg-transparent border-0"><i class="icon ion-ios-lightbulb-outline"></i></div>
+                            <div class="card-body">
+                                <h3 class="card-title">系统架构设计</h3>
+                                <p class="card-text">为多个学校项目架构系统。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card special-skill-item border-0">
+                            <div class="card-header bg-transparent border-0"><i class="icon ion-ios-gear-outline"></i></div>
+                            <div class="card-body">
+                                <h3 class="card-title">完美主义</h3>
+                                <p class="card-text">尽力做到最好。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="page-footer"></footer>
+    <script src="/resume_assets/js/jquery.min.js"></script>
+    <script src="/resume_assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
+    <script src="/resume_assets/js/script.min.js"></script>
+    <script src="/javascripts/croppie.min.js"></script>
+
+    <% if (locals.login && login) { %>
+    <script>
+      function Upload() {
+        var $uploadCrop;
+        function readFile(input) {
+          if (input.files && input.files[0]) {
+                  var reader = new FileReader();
+                  reader.onload = function (e) {
+              $('.upload-demo').addClass('ready');
+                    $uploadCrop.croppie('bind', {
+                      url: e.target.result
+                    }).then(function(){
+                      console.log('jQuery bind complete');
+                    });
+                    
+                  }
+                  reader.readAsDataURL(input.files[0]);
+              }
+              else {
+                console.log("Sorry - you're browser doesn't support the FileReader API");
+            }
+        }
+
+        $uploadCrop = $('.upload-demo').croppie({
+          viewport: {
+            width: 100,
+            height: 100,
+            type: 'circle'
+          },
+          enableExif: true
+        });
+
+        $('#avatar_file').on('change', function () { readFile(this); });
+        $('#upload-result').on('click', function (ev) {
+          $uploadCrop.croppie('result', {
+            type: 'canvas',
+            size: 'viewport'
+          }).then(function (resp) {
+            fetch('/resume/upload/image/<%= name %>', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json, text/plain',
+                'Content-type': 'application/json'
+              },
+              body: JSON.stringify({
+                image: resp,
+                id: "avatar",
+                kind: "home_page",
+              })
+            })// Promise(s)
+            .then((res) => res.json())
+            .then((data) => {
+              if(data['success'] == undefined || data['success'] == '' || data['success'] == null) 
+              {
+                if(data['msg']) {
+                  alert(data['msg'])
+                }
+              } 
+              else if(data['success'] == false){
+                if(data['msg']) {
+                  alert(data['msg'])
+                }
+              } 
+              else 
+              {
+                $("#avatar").attr("style", "background-image:url(" + resp + ")")
+              }
+            })
+          });
+        });
+      }
+      $(document).ready(function(){
+        Upload()
+        $("#text").on('input', function(e){
+          $("#test_drive").html($("#text").val())
+        })
+        $("#cancelPreview").click(function() {
+          $("#test_drive").empty()
+        })
+        $(".delete_about_me").click(function(){
+          var retVal = confirm("Do you want to delete this?")
+          if(!retVal){return}
+          fetch('/resume/delete/<%= name %>', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json, text/plain',
+              'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+              oid: $(this).attr( "id" ),
+            })
+          })// Promise(s)
+          .then((res) => res.json())
+          .then((data) => {
+            location.reload();
+          })
+        })
+      })
+    </script>
+    <% }%>
+</body>
+
+</html>
