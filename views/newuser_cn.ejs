@@ -1,45 +1,47 @@
 <!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
-    <title>简历app注册</title>
-    <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
-    <script src="https://www.recaptcha.net/recaptcha/api.js" async defer></script>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>简历app注册</title>
+      <link rel="stylesheet" href="/resume_assets/bootstrap/css/bootstrap.min.css">
+      <script src="https://www.recaptcha.net/recaptcha/api.js" async defer></script>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
   </head>
-  <body>
-    <div class="container"><br />
-      <h1>简历app注册</h1><br />
-      <form id="signupForm" method="POST">
-        <div class="row">
-          <div class="col-md-4"></div>
-          <div class="form-group col-md-4">
-            <label for="name">用户名:</label>
-            <input type="text" class="form-control" id="name" name="name">
-          </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4"></div>
-            <div class="form-group col-md-4">
-              <label for="pwd">密码:</label>
-              <input type="password" class="form-control" id="pwd" name="pwd">
+
+<body>
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top bg-white clean-navbar">
+        <div class="container"><a class="navbar-brand logo" href="/">植鹏的简历app</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse"
+                id="navcol-1">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login">登录</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="/users/signup">注册</a></li>
+                </ul>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-md-4"></div>
-            <div class="form-group col-md-4">
-            <div class="g-recaptcha" data-sitekey=<%= siteKey %>></div>
-            </div>
-          </div>
-        <div class="row">
-          <div class="col-md-4"></div>
-          <div class="form-group col-md-4">
-            <button type="submit" class="btn btn-primary">注册</button>
-            <a href="/users/login">已有账号了？</a>
-          </div>
         </div>
-      </form>
-    </div>
-    <script src="/javascripts/bundle_crypto.js"></script>
+    </nav>
+    <main class="page registration-page">
+        <section class="clean-block clean-form dark">
+            <div class="container">
+                <div class="block-heading">
+                    <h2 class="text-info">注册</h2>
+                    <p>你和自己定制的简历只差一步之遥。</p>
+                </div>
+                <form id="signupForm" method="POST">
+                    <div class="form-group"><label for="name">用户名</label><input class="form-control item" type="text" id="name" name="name"></div>
+                    <div class="form-group"><label for="password">密码</label><input class="form-control item" type="password" id="pwd" name="pwd"></div>
+                    <div class="form-group"></div><div class="g-recaptcha" data-sitekey=<%= siteKey %>></div>
+                    <!-- <div class="form-group"><label for="email">Email</label><input class="form-control item" type="text" id="email"></div> -->
+                    <button class="btn btn-primary btn-block" type="submit">注册创建简历</button><a href="/users/login">已有账号了？</a></form>
+            </div>
+        </section>
+    </main>
+    <script src="/resume_assets/js/jquery.min.js"></script>
+    <script src="/resume_assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/resume_assets/js/script.min.js"></script>
+    <script src="/javascripts/bundle_crypto.js"></script>    
     <script>
       document.getElementById('signupForm').addEventListener('submit', submit_login);
       function submit_login(e) {
