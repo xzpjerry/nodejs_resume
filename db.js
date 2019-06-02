@@ -165,20 +165,36 @@ function sign_up(req) {
             'pwd': hashPW(username, req.body.pwd)
         })
         .then(function(docInserted){
-            let user_doc_collection = db.create(username)
+            let user_doc_collection = db.get(username)
+            if(!user_doc_collection) {
+                user_doc_collection = db.create(username)
+            }
             let creator_collection = db.get(config.DEFAULT_DOC_COLLECTION)
             creator_collection.aggregate([{$match:{}},{$out:username}])
             .then(function(inited_user_doc) {
                 resolve({'success': true, 'msg': "Sign up successfully"})
             })
             .catch(function(failed) {
-                DBdelete(db, config.USER_COLLECTION, docInserted['_id'])
-                .then(function(undo_insertion) {
-                    reject({'success': false, 'msg': "Unable to init user data." + undo_insertion})
+                user_doc_collection.drop()
+                .then(function(undo_init) {
+                    DBdelete(db, config.USER_COLLECTION, docInserted['_id'])
+                    .then(function(undo_insertion) {
+                        reject({'success': false, 'msg': "Unable to init user data." + undo_insertion['msg']})
+                    })
+                    .catch(function(this_should_not_happen){
+                        reject({'success': false, 'msg': "Internal errors occurred"})
+                    })
                 })
-                .catch(function(this_should_not_happen){
-                    reject({'success': false, 'msg': "Internal errors occurred"})
+                .catch(function(unable_to_undo_init) {
+                    DBdelete(db, config.USER_COLLECTION, docInserted['_id'])
+                    .then(function(undo_insertion) {
+                        reject({'success': false, 'msg': "Unable to initilize your data and also cannot undo the pre-init." + undo_insertion['msg']})
+                    })
+                    .catch(function(this_should_not_happen){
+                        reject({'success': false, 'msg': "Internal errors occurred"})
+                    })
                 })
+                
             })
         })
         .catch(function(err) {

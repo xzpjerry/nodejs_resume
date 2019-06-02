@@ -22,9 +22,9 @@
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_projects">项目</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_cv">简历</a></li>
                     <% if (locals.login && login) { %>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume">登出</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume/<%= name %>">登出</a></li>
                     <% } else { %>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login?bounceback=/resume">制作你的简历</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login?bounceback=/resume/<%= name %>">制作你的简历</a></li>
                     <% } %>
                 </ul>
             </div>

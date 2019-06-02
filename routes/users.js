@@ -19,7 +19,7 @@ router.get('/', db_util.checkLogin, function(req, res) {
 
 router.get('/logout', function(req, res, next){
   res.clearCookie("nodejs_resume");
-  res.redirect(req.query.bounceback || '/users/login');
+  res.redirect(req.query.bounceback || '/resume');
 });
 
 router.get('/login', function(req, res, next) {
@@ -91,8 +91,7 @@ router.post('/signup', function(req, res) {
         db_util.update_Last_LoginTime(req)
         .then(function(updated_result) {
           res.cookie("nodejs_resume", {name: updated_result['username'], hash: updated_result['t_hash'], expire: updated_result['expire']}, {maxAge: 86400000})
-          successfully['bounceback'] = req.cookies['nodejs_resume_bounceback']['bounceback'] || '/resume'
-          res.clearCookie('nodejs_resume_bounceback')
+          successfully['bounceback'] = '/resume'
           res.json(successfully)
         })
         .catch(function(erro_msg) {

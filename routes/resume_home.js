@@ -10,15 +10,19 @@ function allSkippingErrors(promises) {
 router.get('/:username', function(req, res, next) {
   let username = req.params.username
   let avatar_promise = db_util.DBretrieveOne(req.db, username, "avatar", "home_page")
-  let about_me = db_util.DBretrieve(req.db, username, "about-me", "home_page")
-  allSkippingErrors([avatar_promise, about_me])
+  let about_me_promise = db_util.DBretrieve(req.db, username, "about-me", "home_page")
+  allSkippingErrors([avatar_promise, about_me_promise])
   .then(function(values) {
+    if(!values[0] && !values[1]) {
+      res.redirect('/resume/me')
+      return
+    }
     db_util.isLogined_as(req, username)
     .then(function(is_logined) {
       let home_page_dict = {
         login: true,
         name: username,
-        avatar: values[0],
+        avatar: values[0] || {return: "resume_assets/img/avatars/avatar.png"},
         aboutme: values[1],
       }
       let need_zh = req.acceptsLanguages(['zh'])
@@ -31,7 +35,8 @@ router.get('/:username', function(req, res, next) {
     .catch(function(isnot) {
       let home_page_dict = {
         login: false,
-        avatar: values[0],
+        name: username,
+        avatar: values[0] || {return: "resume_assets/img/avatars/avatar.png"},
         aboutme: values[1],
       }
       let need_zh = req.acceptsLanguages(['zh'])
@@ -47,49 +52,12 @@ router.get('/:username', function(req, res, next) {
   })
 });
 router.get('/', function(req, res, next) {
-  db_util.isLogined(req)
-  .then(function(is_logined){
-    let username = req.cookies["nodejs_resume"].name
-    res.redirect('/resume/' + username)
-  })
-  .catch(function(isnot) {
-    let avatar_promise = db_util.DBretrieveOne(req.db, req.db_cfg.DEFAULT_DOC_COLLECTION, "avatar", "home_page")
-    let about_me_promise = db_util.DBretrieve(req.db, req.db_cfg.DEFAULT_DOC_COLLECTION, "about-me", "home_page")
-    allSkippingErrors([avatar_promise, about_me_promise])
-    .then(function(values) {
-      db_util.isLogined_as(req, 'me')
-      .then(function(is_logined) {
-        let home_page_dict = {
-          login: true,
-          name: 'me',
-          avatar: values[0],
-          aboutme: values[1],
-        }
-        let need_zh = req.acceptsLanguages(['zh'])
-        if(need_zh) {
-          res.render('resume_home_cn', home_page_dict)
-        } else {
-          res.render('resume_home', home_page_dict)
-        }
-      })
-      .catch(function(isnot) {
-        let home_page_dict = {
-          login: false,
-          avatar: values[0],
-          aboutme: values[1],
-        }
-        let need_zh = req.acceptsLanguages(['zh'])
-        if(need_zh) {
-          res.render('resume_home_cn', home_page_dict)
-        } else {
-          res.render('resume_home', home_page_dict)
-        }
-      })
-    })
-    .catch(function(err) {
-      res.send(500)
-    })
-  })
+  let cookie = req.cookies["nodejs_resume"]
+  let username = 'me'
+  if(cookie){
+    username = cookie.name 
+  }
+  res.redirect('/resume/' + username)
 });
 
 router.post('/delete/:username', function(req, res) {
