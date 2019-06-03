@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db_util = require('../db');
+const avoid_script_regex = /[*]?<script>[*]?/
 function allSkippingErrors(promises) {
   return Promise.all(
     promises.map(p => p.catch(error => null))
@@ -75,6 +76,19 @@ router.post('/delete/:username', function(req, res) {
     })
 });
 router.post('/upload/item/:username', function(req, res) {
+    if(Array.isArray(req.body['text[]'])) {
+        for(let i = 0; i < req.body['text[]'].length; i++) {
+            if(avoid_script_regex.test(req.body['text[]'][i])) {
+                res.redirect('back');
+                return
+              }
+        }
+    } else {
+        if(avoid_script_regex.test(req.body['text[]'])) {
+            res.redirect('back');
+            return
+          }
+    }
     let username = req.params.username
     db_util.isLogined_as(req, username)
     .then(function(is_logined) {
