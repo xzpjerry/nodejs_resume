@@ -17,14 +17,15 @@
             <div class="collapse navbar-collapse"
                 id="navbarNav">
                 <ul class="nav navbar-nav ml-auto">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="/resume">Home</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="/resume/<%= name %>">Home</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_projects">Projects</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_cv">Resume</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_cv/<%= name %>">Resume</a></li>
                     <% if (locals.login && login) { %>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume">Log out</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume_cv/<%= name %>">Log out</a></li>
                     <% } else { %>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login?bounceback=/resume">Create yours</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login?bounceback=/resume_cv/<%= name %>">Create yours</a></li>
                     <% } %>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume">My resume</a></li>
                 </ul>
             </div>
         </div>
@@ -35,34 +36,98 @@
                 <div class="heading">
                     <h2 class="text-center">Education</h2>
                 </div>
-                <div class="item">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h3>Computer Science</h3>
-                            <h4 class="organization">University of Oregon, Eugene, OR</h4>
+                <% if (locals.edu) { %>
+                    <% for (i = 0; i < edu['return'].length; i++) { %>
+                        <div class="item">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3><%= edu['return'][i]['data']['title'] %></h3>
+                                    <h4 class="organization"><%= edu['return'][i]['data']['org'] %></h4>
+                                </div>
+                                <div class="col-md-6"><span class="period"><%= edu['return'][i]['data']['period'] %></span></div>
+                            </div>
+                            <% if (Array.isArray(edu['return'][i]['data']['text'])) { %>
+                                <% for (j = 0; j < edu['return'][i]['data']['text'].length; j++) { %>
+                                    <p class="text-muted"><em><%= edu['return'][i]['data']['text'][j] %></em></p>
+                                <% } %>
+                            <% } else { %>
+                                <p class="text-muted"><em><%= edu['return'][i]['data']['text'] %></em></p>
+                            <% } %>
+                            <% if (locals.login && login) { %>
+                            <button class="delete_card" id="<%= edu['return'][i]['_id'] %>">Delete Me</button>
+                            <% } %>
                         </div>
-                        <div class="col-md-6"><span class="period">09/2016 - 09/2019(Expected)</span></div>
+                    <% } %>
+                <% } %>
+                <% if (locals.login && login) { %>
+                    <form action="/resume_cv/upload/item/<%= name %>" method="post">
+                      <input type="hidden" id="id" name="id" value="edu">
+                      <input type="hidden" id="kind" name="kind" value="cv">
+                      <h3>Add new education record</h3>
+                      <div id="new_edu_item" class="item">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3><input type="text" id='title' name='title' value="Awsome major"></h3>
+                                    <h4 class="organization"><input type="text" id='org' name='org' value="University of Awesome"></h4>
+                                </div>
+                                <div class="col-md-6"><span class="period"><input type="text" id='period' name='period' value="2015-2019"></span></div>
+                            </div>
+                            <p class="text-muted"><em><textarea id="text" name="text[]" style="width:100%;height:150px;">B.S. in xxx, GPA xxxx</textarea></em></p>
                     </div>
-                    <p class="text-muted"><em>B.S. in Computer and Information Science (Computer Network Track) GPA: 3.62/4.0</em></p>
-                </div>
+                    <button type="button" id="add_field_to_edu_form">More field</button>
+                    <input type="submit" value="Submit new education record" />
+                    </form>
+                <% } %>
+                
             </div>
             <div class="container">
                 <div class="work-experience group">
                     <div class="heading">
                         <h2 class="text-center">Work Experience</h2>
                     </div>
-                    <div class="item">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h3>Teaching Assistant(<em>iOS Development class).</em><br></h3>
-                                <h4 class="organization">University of Oregon, Eugene, OR<br></h4>
+                    <% if (locals.work) { %>
+                        <% for (i = 0; i < work['return'].length; i++) { %>
+                        <div class="item">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3><%= work['return'][i]['data']['title'] %><br></h3>
+                                    <h4 class="organization"><%= work['return'][i]['data']['org'] %><br></h4>
+                                </div>
+                                <div class="col-md-6"><span class="period"><%= work['return'][i]['data']['period'] %></span></div>
                             </div>
-                            <div class="col-md-6"><span class="period">06/2018 - 09/2018</span></div>
+                            <% if (Array.isArray(work['return'][i]['data']['text'])) { %>
+                                <% for (j = 0; j < work['return'][i]['data']['text'].length; j++) { %>
+                                    <p class="text-muted"><%= work['return'][i]['data']['text'][j] %></p>
+                                <% } %>
+                            <% } else { %>
+                                <p class="text-muted"><%= work['return'][i]['data']['text'] %></p>
+                            <% } %>
+                            <% if (locals.login && login) { %>
+                                <button class="delete_card" id="<%= work['return'][i]['_id'] %>">Delete Me</button>
+                            <% } %>
                         </div>
-                        <p class="text-muted">Assisted instructor in teaching and assessing homework, exams, and projects in Swift.</p>
-                        <p class="text-muted">Communicated with the instructor actively and informed him whenever there was a situation.</p>
-                        <p class="text-muted">Executed the task with initiative and submitted the result at least 3 days before the deadline.</p>
-                    </div>
+                        <% } %>
+                    <% } %>
+
+                    <% if (locals.login && login) { %>
+                        <form action="/resume_cv/upload/item/<%= name %>" method="post">
+                          <input type="hidden" id="id" name="id" value="work">
+                          <input type="hidden" id="kind" name="kind" value="cv">
+                          <h3>Add new working record</h3>
+                          <div id="new_work_item" class="item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h3><input type="text" id='title' name='title' value="Awesome job"></h3>
+                                        <h4 class="organization"><input type="text" id='org' name='org' value="Awesome company"></h4>
+                                    </div>
+                                    <div class="col-md-6"><span class="period"><input type="text" id='period' name='period' value="2015-2019"></span></div>
+                                </div>
+                                <p class="text-muted"><em><textarea id="text" name="text[]" style="width:100%;height:150px;">Contributed to xxx, assisted in xxx</textarea></p>
+                        </div>
+                        <button type="button" id="add_field_to_work_form">More field</button>
+                        <input type="submit" value="Submit new education record" />
+                        </form>
+                    <% } %>
                 </div>
                 <div class="group">
                     <div class="row">
@@ -105,6 +170,37 @@
     <script src="/resume_assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
     <script src="/resume_assets/js/script.min.js"></script>
+
+    <% if (locals.login && login) { %>
+        <script>
+          $(document).ready(function(){
+            $("#add_field_to_work_form").click(function(){
+                $("#new_work_item").append('<p class="text-muted"><em><textarea id="text" name="text[]" style="width:100%;height:150px;">Contributed to xxx, assisted in xxx</textarea></p>')
+            })
+            $("#add_field_to_edu_form").click(function(){
+                $("#new_edu_item").append('<p class="text-muted"><em><textarea id="text" name="text[]" style="width:100%;height:150px;">B.S. in xxx, GPA xxxx</textarea></em></p>')
+            })
+            $(".delete_card").click(function(){
+              var retVal = confirm("Do you want to delete this card?")
+              if(!retVal){return}
+              fetch('/resume_cv/delete/<%= name %>', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json, text/plain',
+                  'Content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                  oid: $(this).attr( "id" ),
+                })
+              })// Promise(s)
+              .then((res) => res.json())
+              .then((data) => {
+                location.reload();
+              })
+            })
+          })
+        </script>
+    <% }%>
 </body>
 
 </html>

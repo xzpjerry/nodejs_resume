@@ -331,6 +331,23 @@ function DBretrieveOne(db, from_collection, with_id, with_kind) {
         });
       });
 }
+function has_user(db, username) {
+    return new Promise(function(resolve, reject){
+        let collection = db.get(config.USER_COLLECTION);
+        collection.findOne({name: username}, {})
+        .then(function(doc) {
+            if(doc == undefined || doc == '' || doc == null) {
+                reject({'success': false, 'msg': "Unable to fetch user data or internal errors occurred"})
+            }
+            else {
+                resolve({'success': true})
+            }
+        })
+        .catch(function(e) {
+            reject({'success': false, 'msg': "Unable to fetch user data or internal errors occurred"})
+        });
+      });
+}
 
 module.exports = {
     config: config,
@@ -348,4 +365,5 @@ module.exports = {
     DBsave: DBsave,
     DBretrieve: DBretrieve,
     DBdelete: DBdelete,
+    has_user: has_user,
 }

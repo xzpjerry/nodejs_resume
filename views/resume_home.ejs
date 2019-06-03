@@ -20,12 +20,13 @@
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="/resume/<%= name %>">Home</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_projects">Projects</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_cv">Resume</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_cv/<%= name %>">Resume</a></li>
                     <% if (locals.login && login) { %>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume/<%= name %>">Log out</a></li>
                     <% } else { %>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/users/login?bounceback=/resume/<%= name %>">Create yours</a></li>
                     <% } %>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume">My resume</a></li>
                 </ul>
             </div>
         </div>

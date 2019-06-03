@@ -9,46 +9,44 @@ function allSkippingErrors(promises) {
 /* GET resume page. */
 router.get('/:username', function(req, res, next) {
   let username = req.params.username
-  let avatar_promise = db_util.DBretrieveOne(req.db, username, "avatar", "home_page")
-  let about_me_promise = db_util.DBretrieve(req.db, username, "about-me", "home_page")
-  allSkippingErrors([avatar_promise, about_me_promise])
-  .then(function(values) {
-    if(!values[0] && !values[1]) {
-      res.redirect('/resume/me')
-      return
-    }
-    db_util.isLogined_as(req, username)
-    .then(function(is_logined) {
-      let home_page_dict = {
-        login: true,
-        name: username,
-        avatar: values[0] || {return: "resume_assets/img/avatars/avatar.png"},
-        aboutme: values[1],
-      }
-      let need_zh = req.acceptsLanguages(['zh'])
-      if(need_zh) {
-        res.render('resume_home_cn', home_page_dict)
-      } else {
-        res.render('resume_home', home_page_dict)
-      }
-    })
-    .catch(function(isnot) {
-      let home_page_dict = {
-        login: false,
-        name: username,
-        avatar: values[0] || {return: "resume_assets/img/avatars/avatar.png"},
-        aboutme: values[1],
-      }
-      let need_zh = req.acceptsLanguages(['zh'])
-      if(need_zh) {
-        res.render('resume_home_cn', home_page_dict)
-      } else {
-        res.render('resume_home', home_page_dict)
-      }
+  db_util.has_user(req.db, username)
+  .then(function(good) {
+    let need_zh = req.acceptsLanguages(['zh'])
+    let avatar_promise = db_util.DBretrieveOne(req.db, username, "avatar", "home_page")
+    let about_me_promise = db_util.DBretrieve(req.db, username, "about-me", "home_page")
+    allSkippingErrors([avatar_promise, about_me_promise])
+    .then(function(values) {
+      db_util.isLogined_as(req, username)
+      .then(function(is_logined) {
+        let home_page_dict = {
+          login: true,
+          name: username,
+          avatar: values[0] || {return: "resume_assets/img/avatars/avatar.png"},
+          aboutme: values[1],
+        }
+        if(need_zh) {
+          res.render('resume_home_cn', home_page_dict)
+        } else {
+          res.render('resume_home', home_page_dict)
+        }
+      })
+      .catch(function(isnot) {
+        let home_page_dict = {
+          login: false,
+          name: username,
+          avatar: values[0] || {return: "resume_assets/img/avatars/avatar.png"},
+          aboutme: values[1],
+        }
+        if(need_zh) {
+          res.render('resume_home_cn', home_page_dict)
+        } else {
+          res.render('resume_home', home_page_dict)
+        }
+      })
     })
   })
   .catch(function(err) {
-    res.send(500)
+    res.redirect('/resume/me')
   })
 });
 router.get('/', function(req, res, next) {
