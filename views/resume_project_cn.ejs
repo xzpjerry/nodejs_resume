@@ -18,7 +18,7 @@
                 id="navbarNav">
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="/resume/<%= name %>">首页</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_projects">项目</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_projects/<%= name %>">项目</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/resume_cv/<%= name %>">简历</a></li>
                     <% if (locals.login && login) { %>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="/users/logout?bounceback=/resume_projects/<%= name %>">登出</a></li>
